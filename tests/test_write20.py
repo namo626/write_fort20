@@ -3,6 +3,7 @@ from write_fort20.fort14parse import Fort14Parser
 from write_fort20.fort20write import Fort20Writer
 import os
 import datetime
+import pytest
 
 # Write to 30m_cut_v8.20 file
 def create_fort20():
@@ -16,19 +17,22 @@ def create_fort20():
     os.system(command)
 
 # Extract the first river from gauge file
+@pytest.fixture(scope="module")
 def read_gauge():
     starttime = datetime.datetime.strptime('2008-09-05-12:00', '%Y-%m-%d-%H:%M')
-    rivers = Fort20Writer("30m_cut_v8.14", " ", interval=3600, input_dir="gauges_namo",
-                          start=starttime, rnday=9)
+    rivers = Fort20Writer("./30m_cut_v8.14", " ", interval=3600, input_dir="./gauges_namo",
+                          start=starttime, rnday=9, num_rivers=45)
     # First river
     river = rivers.flows_cfs[rivers.infiles[0]]
     flow = []
-    flow = [river[time] for time in self.times]
+    flow = [river[time] for time in rivers.times]
+    print("Finished reading gauge data")
     return flow
 
 # Return an array containing the total discharge time series of a river
+@pytest.fixture(scope="module")
 def read_fort20():
-    fort14 = Fort14Parser("30m_cut_v8.14")
+    fort14 = Fort14Parser("./30m_cut_v8.14")
     # Get a list of flow boundary objects
     bcs = fort14.get_bcs(22)
     total_num_nodes = sum([bc.num_nodes for bc in bcs])
@@ -41,7 +45,7 @@ def read_fort20():
 
 # Read in the fort.20 file
     discharge = []
-    with open("30m_cut_v8.20") as f20:
+    with open("./30m_cut_v8.20") as f20:
         l = f20.readline() # dt label
         while True:
             # first node
@@ -62,12 +66,13 @@ def read_fort20():
             for i in range(total_num_nodes - num_nodes):
                 l = f20.readline()
 
+    print("Finished reading fort.20")
     return discharge
 
-def test_length():
-    discharge = read_fort20()
-    print("Finished reading fort.20")
-    flow = read_gauge()
-    print("Finished reading gauge data")
+def test_length(read_fort20, read_gauge):
+    #discharge = read_fort20()
+    #flow = read_gauge()
+    assert len(read_fort20) == len(read_gauge)
 
-    assert len(discharge) == len(flow)
+def test_flow(read_fort20, read_gauge):
+    np.testing.assert_almost_equal(read_fort20, read_gauge)

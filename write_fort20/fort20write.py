@@ -41,7 +41,7 @@ class Fort20Writer:
     """
 
     def __init__(self, fort14, fort20, interval=None, input_dir=None,
-                 use_depth=False, const_flow=None, start=None, rnday=None):
+                 use_depth=False, num_rivers=1, const_flow=None, start=None, rnday=None):
         """Inits Fort20Writer with ___"""
 
         # Warn if time increment should be specified and is not
@@ -70,6 +70,8 @@ class Fort20Writer:
         # associate input filenames with BCs
         if not self.const_flow:
             self.infiles = sorted(os.listdir(self.input_dir))
+            # Use only some rivers
+            self.infiles = self.infiles[:num_rivers]
 
             self.flows_cfs = {}
             for infile in self.infiles:
