@@ -1,5 +1,5 @@
 
-from .adcutils import Node, BoundaryCondition
+from adcutils import Node, BoundaryCondition
 
 
 class Fort14Parser:
@@ -78,3 +78,21 @@ class Fort14Parser:
             return bclist
         else:
             return list(self.all_bounds.values())
+
+
+    def get_flow_midpoints(self):
+        flow_bcs = self.get_bcs(22)
+        coords = []
+        i = 1
+        for bc in flow_bcs:
+            #print('Getting midpoint of river %d' % i)
+            first = bc.nodes[0]
+            last = bc.nodes[-1]
+
+            # Find midpoint
+            lat = 0.5*(first.lat + last.lat)
+            lon = 0.5*(first.lon + last.lon)
+            coords.append([lat,lon])
+            i += 1
+
+        return coords

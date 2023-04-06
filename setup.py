@@ -7,7 +7,10 @@ setup(
     packages=find_packages(),
     #packages=["src/write_fort20"],
     #package_dir={"": "src"},
-    install_requires=[],
+    install_requires=[
+        'numpy',
+        'pandas',
+        'geopy'],
     ## Entry point for command line and function to be executed
     entry_points={
         'console_scripts': ['write_fort20=write_fort20.fort20write:main'],

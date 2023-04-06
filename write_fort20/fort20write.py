@@ -41,7 +41,7 @@ class Fort20Writer:
     """
 
     def __init__(self, fort14, fort20, interval=None, input_dir=None,
-                 use_depth=False, num_rivers=1, const_flow=None, start=None, rnday=None):
+                 use_depth=False, num_rivers=-1, const_flow=None, start=None, rnday=None):
         """Inits Fort20Writer with ___"""
 
         # Warn if time increment should be specified and is not
@@ -71,7 +71,8 @@ class Fort20Writer:
         if not self.const_flow:
             self.infiles = sorted(os.listdir(self.input_dir))
             # Use only some rivers
-            self.infiles = self.infiles[:num_rivers]
+            if num_rivers > 0 and num_rivers <= len(self.infiles):
+                self.infiles = self.infiles[:num_rivers]
 
             self.flows_cfs = {}
             for infile in self.infiles:
@@ -161,7 +162,11 @@ def main():
     parser.add_argument('-o',  '--output',    dest='fort20',
                         type=str,            default='fort.20')
     parser.add_argument('-i',  '--inputdir',  dest='input_dir',
-                        type=str,            default=None)
+                        type=str, default=None,
+                        help=('Folder containing river flow data in CSV'))
+    parser.add_argument('-n', '--num_rivers', dest='num_rivers',
+                        type=int, default=-1,
+                        help=('Number of rivers to actually use. Use all rivers if not specified.'))
     parser.add_argument('-dt', '--interval',  dest='interval',
                         type=int,            default=10000000000,
                         help=('Time interval (in s) at which ADCIRC '
@@ -182,10 +187,17 @@ def main():
     args = parser.parse_args()
 
     starttime = datetime.datetime.strptime(args.starttime, '%Y-%m-%d-%H:%M')
-    writer = Fort20Writer(args.fort14, args.fort20, interval=args.interval,
-                          input_dir=args.input_dir, use_depth=args.use_depth,
-                          const_flow=args.const_flow, start=starttime,
-                          rnday=args.rnday)
+    writer = Fort20Writer(
+        args.fort14,
+        args.fort20,
+        num_rivers=args.num_rivers,
+        interval=args.interval,
+        input_dir=args.input_dir,
+        use_depth=args.use_depth,
+        const_flow=args.const_flow,
+        start=starttime,
+        rnday=args.rnday
+        )
     writer.calculate_flow_factors()
     writer.write()
 
