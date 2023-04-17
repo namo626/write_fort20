@@ -149,15 +149,18 @@ class Fort20Writer:
                         if self.const_flow:
                             flow_cfs = self.const_flow
                         else:
-                            print(self.flows_cfs[infile])
-                            flow_cfs = self.flows_cfs[infile][time]
+                            # If time is not found in this infile, put zero flows
+                            if time in self.flows_cfs[infile]:
+                                flow_cfs = self.flows_cfs[infile][time]
+                            else:
+                                flow_cfs = 0.0
 
                         flow = cfs_to_adcirc(flow_cfs, factor)
                         o.write(str(flow) + '\n')
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Write fort.20 file')
+    parser = argparse.ArgumentParser(description='Write fort.20 file.\nEXAMPLE: write_fort20 -f fort.14 -o fort.20 -i data -dt 3600 -t \'2017-08-16-6:00\' -d 9')
     parser.add_argument('-f',  '--fort14',    dest='fort14',
                         type=str,            default='fort.14')
     parser.add_argument('-o',  '--output',    dest='fort20',
