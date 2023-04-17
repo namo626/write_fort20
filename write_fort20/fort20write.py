@@ -149,6 +149,7 @@ class Fort20Writer:
                         if self.const_flow:
                             flow_cfs = self.const_flow
                         else:
+                            print(self.flows_cfs[infile])
                             flow_cfs = self.flows_cfs[infile][time]
 
                         flow = cfs_to_adcirc(flow_cfs, factor)

@@ -1,5 +1,5 @@
 
-from adcutils import Node, BoundaryCondition
+from .adcutils import Node, BoundaryCondition
 
 
 class Fort14Parser:
