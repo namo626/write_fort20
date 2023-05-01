@@ -1,5 +1,6 @@
 import argparse
 import datetime
+from zoneinfo import ZoneInfo
 import math
 import os
 
@@ -65,7 +66,9 @@ class Fort20Writer:
         self.use_depth  = use_depth
         self.const_flow = const_flow
 
-        self.make_times_list(start, rnday)
+        # Convert start date to CDT from UTC
+        self.start_CDT = start.replace(tzinfo=ZoneInfo('UTC')).astimezone(ZoneInfo('US/Central'))
+        self.make_times_list(self.start_CDT, rnday)
 
         # associate input filenames with BCs
         if not self.const_flow:
@@ -80,7 +83,8 @@ class Fort20Writer:
 
 
     def make_times_list(self, start, rnday):
-        """Creates datetime object for each time at which the fort.20 will be sampled"""
+        """Creates datetime object for each time at which the fort.20 will be sampled.
+        namo: The result is now in CDT, since we converted it during object initialization"""
         if self.const_flow:
             self.times = [0, 1]
         else:
@@ -176,9 +180,11 @@ def main():
                         help=('Time interval (in s) at which ADCIRC '
                               'should read new fort.20 lines'))
     parser.add_argument('-t',  '--starttime', dest='starttime',
-                        type=str,            default='2008-09-05-12:00')
+                        type=str,            default='2008-09-05-12:00',
+                        help=('Start date in UTC, format is YYYY-MM-DD-HH:MM'))
     parser.add_argument('-d',  '--rnday',     dest='rnday',
-                        type=float,          default=10)
+                        type=float,          default=10,
+                        help=('Run duration in days'))
     parser.add_argument('-c',  '--const',     dest='const_flow',
                         type=float,          default=None,
                         help=('For the simplest case, specify a constant '
