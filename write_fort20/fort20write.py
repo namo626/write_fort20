@@ -54,6 +54,8 @@ class Fort20Writer:
         else:
             self.interval = interval
 
+        print(start)
+
         # Create Fort14Parser object
         if type(fort14) == str:
             self.fort14 = Fort14Parser(fort14)
@@ -67,7 +69,8 @@ class Fort20Writer:
         self.const_flow = const_flow
 
         # Convert start date to CDT from UTC
-        self.start_CDT = start.replace(tzinfo=ZoneInfo('UTC')).astimezone(ZoneInfo('US/Central'))
+        self.start_CDT = start - datetime.timedelta(hours=5)
+        print(self.start_CDT)
         self.make_times_list(self.start_CDT, rnday)
 
         # associate input filenames with BCs
