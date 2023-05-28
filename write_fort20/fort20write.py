@@ -110,7 +110,11 @@ class Fort20Writer:
                 t, flow = line.rstrip().split(',')
                 time = datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S')
                 if time in self.times:
-                    flows[time] = float(flow)
+                    # value may be NaN
+                    try:
+                        flows[time] = float(flow)
+                    except:
+                        flows[time] = 0.0
         return flows
 
 
@@ -174,7 +178,7 @@ def main():
                         type=str,            default='fort.20')
     parser.add_argument('-i',  '--inputdir',  dest='input_dir',
                         type=str, default=None,
-                        help=('Folder containing river flow data in CSV'))
+                        help=('Folder containing river flow data in cfs'))
     parser.add_argument('-n', '--num_rivers', dest='num_rivers',
                         type=int, default=-1,
                         help=('Number of rivers to actually use. Use all rivers if not specified.'))
