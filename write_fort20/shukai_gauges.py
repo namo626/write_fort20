@@ -7,7 +7,9 @@ import numpy as np
 import pandas as pd
 from re import sub
 from datetime import datetime
+from dateutil import parser
 import os
+import rapidfuzz as rp
 
 def camel_case(s):
   s = sub(r"(_|-)+", " ", s).title().replace(" ", "")
@@ -33,6 +35,55 @@ def camel_case(s):
 
 #     flow_info.to_csv(flow_file, index=False)
 
+# Mapping river name to ID
+river_list = [
+  "Rio Grande",
+  "Arroyo Colorado",
+  "Los Olmos Creek",
+  "Santa Gertrudis Creek",
+  "Petronila Creek",
+  "Oso Creek",
+  "Nueces River",
+  "Chiltipin Creek",
+  "Aransas River",
+  "Mission River",
+  "Copano River",
+  "Guadalupe River",
+  "San Antonio River",
+  "Placedo Creek",
+  "Arenosa Creek",
+  "Lavaca River",
+  "Tres Palacios River",
+  "Colorado River",
+  "Live Oak Bayou",
+  "Celery Creek",
+  "Cedar Lake Creek",
+  "San Bernard River",
+  "Brazos River",
+  "Oyster Creek",
+  "Bastrop Bayou",
+  "Chocolate Bayou",
+  "Dickinson Bayou",
+  "Clear Creek",
+  "Greens Bayou",
+  "Vince Bayou",
+  "Sims Bayou",
+  "Brays Bayou",
+  "Buffalo Bayou",
+  "Hunting Bayou",
+  "San Jacinto River",
+  "Goose Creek",
+  "Cedar Bayou",
+  "Trinity River",
+  "Taylor Bayou",
+  "Hillebrant Bayou",
+  "Pine Island Bayou",
+  "Neches River",
+  "Cow Bayou",
+  "Adams Bayou",
+  "Sabine River"
+  ]
+
 # setup folders
 os.system("mkdir data")
 os.system("cp ../TemplateFlows/* data/")
@@ -40,7 +91,7 @@ os.system("cp ../TemplateFlows/* data/")
 fp = open("shukai.txt", "r")
 lines = fp.read().splitlines()
 
-# First row is ID
+# First row is Date, river1, river2, ..., riverN
 data = []
 for line in lines:
   data.append(line.split(","))
@@ -52,9 +103,13 @@ cols = len(data[0])
 rows = len(data)
 
 for i in range(1,cols):
-  flow_id = int(data[0][i])
-  river = data[1][i]
-  print(river)
+  river = data[0][i]
+  # Fuzzy search for matching river name, and get the ID
+  fuzzy = rp.process.extractOne(river, river_list)
+  flow_id = 1 + fuzzy[-1]
+  river_name = fuzzy[0]
+
+  print(river, river_name )
 
   # remove existing river files
   os.system("rm data/%02d*" % flow_id)
@@ -63,10 +118,17 @@ for i in range(1,cols):
   # header
   fflow.write("Date,%s\n" % river)
   # Loop over time series
-  for j in range(2,rows):
-    timestamp = datetime.strptime(data[j][0], '%m/%d/%y %H:%M')
+  for j in range(1,rows):
+    #timestamp = datetime.strptime(data[j][0], '%m/%d/%y %H:%M')
+    timestamp = parser.parse(data[j][0])
     timestring = timestamp.strftime('%Y-%m-%d %H:%M:%S')
-    flow = float(data[j][i])
+
+    # If flow value is empty, just put zero
+    flow_string = data[j][i]
+    if flow_string:
+      flow = float(data[j][i])
+    else:
+      flow = 0.0
 
     # write to csv file
     fflow.write("%s,%.7f\n" % (timestring, flow))
