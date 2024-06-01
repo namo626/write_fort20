@@ -29,7 +29,7 @@ The basic structure of the provided data folder is this:
     └── shukai.txt
 ...
 ```
-Here `shukai.txt` is the missing flow data for the respective river. Then inside each storm folder, run
+Here `shukai.txt` is the missing flow data for the respective river. Then inside each storm folder, copy `shukai_gauges.py` from `write_fort20/write_fort20/shukai_gauges.py` and run
 
 	python3 shukai_gauges.py
 
@@ -37,7 +37,7 @@ This will create a local directory `data` which contains all the river flow data
 
 1. Creates a folder `data`, deleting any existing one
 2. Copies the 45 river csv files from `TemplateFlows` to `data`
-3. Parses the river names in `shukai.txt` and matches them to the correct indices as specified in [gauge_info](https://docs.google.com/spreadsheets/d/1TmZHVMFxkr7OIIkLz5q_fRM_fL_4IiBtKnD4bvYImdg/edit?usp=sharing).**Note that the river names in `shukai.txt` should be as close to the ones in the table as possible, since we're using fuzzy search to match them**.
+3. Parses the river names in `shukai.txt` and matches them to the correct indices as specified in [gauge_info](https://docs.google.com/spreadsheets/d/1TmZHVMFxkr7OIIkLz5q_fRM_fL_4IiBtKnD4bvYImdg/edit?usp=sharing). **Note that the river names in `shukai.txt` should be as close to the ones in the table as possible, since we're using fuzzy search to match them**.
 4. Writes the time series for each river in `shukai.txt` to the corresponding CSV file in `data`, overwriting the existing one from `TemplateFlows`
 
 As the script finishes, the `data` folder should contain 45 river CSV files. Then, if we pick Harvey, we would run
