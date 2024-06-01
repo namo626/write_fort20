@@ -85,6 +85,7 @@ river_list = [
   ]
 
 # setup folders
+os.system("rm -rf data")
 os.system("mkdir data")
 os.system("cp ../TemplateFlows/* data/")
 
@@ -109,7 +110,7 @@ for i in range(1,cols):
   flow_id = 1 + fuzzy[-1]
   river_name = fuzzy[0]
 
-  print(river, river_name )
+  print("%s --> %s" % (river, river_name) )
 
   # remove existing river files
   os.system("rm data/%02d*" % flow_id)
